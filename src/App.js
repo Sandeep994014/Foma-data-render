@@ -7,6 +7,7 @@ import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
 import Container from "@mui/material/Container";
 import { Card, CardMedia, Typography, Grid } from "@mui/material";
+import PersonRemoveRoundedIcon from '@mui/icons-material/PersonRemoveRounded';
 
 function App() {
   const [name, setName] = useState("");
@@ -16,19 +17,58 @@ function App() {
   const [image, setImage] = useState(null);
 
   useEffect(() => {
-    // Load data from localStorage
     const storedData = localStorage.getItem("userData");
     if (storedData) {
       setData(JSON.parse(storedData));
     }
   }, []);
 
+  // const validateForm = () => {
+  //   if (!name || !email || !number || !image) {
+  //     alert("Please fill in all fields and upload an image.");
+  //     return false;
+  //   }
+  //   // Basic email validation
+  //   if (!/\S+@\S+\.\S+/.test(email)) {
+  //     alert("Please enter a valid email address.");
+  //     return false;
+  //   }
+  //   return true;
+  // };
+
+  const validateForm = () => {
+    // Validate Name
+    if (!name || !/^[A-Za-z\s]+$/.test(name)) {
+      alert("Please enter a valid name (letters and spaces only).");
+      return false;
+    }
+  
+    // Validate Email
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      alert("Please enter a valid email address.");
+      return false;
+    }
+  
+    // Validate Number
+    if (!number || !/^\d{10}$/.test(number)) {
+      alert("Please enter a valid 10-digit phone number.");
+      return false;
+    }
+  
+    // Check if image is uploaded
+    if (!image) {
+      alert("Please upload an image.");
+      return false;
+    }
+  
+    return true;
+  };
+  
   const addData = () => {
-    if (name && email && number && image) {
+    if (validateForm()) {
       const newData = [...data, { name, email, number, image }];
       setData(newData);
-      localStorage.setItem("userData", JSON.stringify(newData)); // Save to localStorage
-
+      localStorage.setItem("userData", JSON.stringify(newData));
       setName("");
       setEmail("");
       setNumber("");
@@ -41,10 +81,16 @@ function App() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result); // Set the image to base64 string
+        setImage(reader.result);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const deleteData = (index) => {
+    const newData = data.filter((_, i) => i !== index);
+    setData(newData);
+    localStorage.setItem("userData", JSON.stringify(newData)); // Update localStorage
   };
 
   return (
@@ -104,40 +150,51 @@ function App() {
                 variant="outlined"
                 sx={{
                   p: 2,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  // overflow-x: auto,
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
+                <Box display="flex" justifyContent="flex-end">
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => deleteData(index)}
+                  >
+                    <PersonRemoveRoundedIcon />
+                  </Button>
+                </Box>
                 <CardMedia
                   component="img"
                   width="100"
                   height="100"
                   alt="Profile"
-                  src={item.image} // Placeholder image, replace with actual image if needed
+                  src={item.image}
                   sx={{
-                    width: { xs: '100%', sm: 100 },
-                    height: { xs: '100%', sm: 100 },
-                    borderRadius: '50%', 
+                    alignItems: "center",
+                    width: { xs: "100%", sm: 100 },
+                    height: { xs: "100%", sm: 100 },
+                    borderRadius: "50%",
+                    padding: 3,
+                    display: 'block',
+                    margin: '0 auto',
                   }}
                 />
                 <Typography color="text.primary" fontWeight="semiBold" variant="p">
-                  Name: {item.name}
+                  <b>Name :</b> {item.name}
                 </Typography>
                 <Typography
                   variant="caption"
                   color="text.secondary"
                   fontWeight="medium"
                 >
-                  Email: {item.email}
+                  <b>Email :</b> &nbsp; {item.email}
                 </Typography>
                 <Typography
                   variant="caption"
                   color="text.secondary"
                   fontWeight="medium"
                 >
-                 Mobile:  {item.number}
+                  <b>Mobile :</b> {item.number}
                 </Typography>
               </Card>
             </Grid>
